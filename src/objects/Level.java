@@ -53,6 +53,7 @@ public class Level {
 	private int mapWidth; // The map array width.
 	private int mapHeight; // The map array height.
 	private int[][] map; // The map array. (height, width)
+	private boolean[][] tileUpdated;
 	private int tileSize; // The tileSize. Preferably 32.
 	private ArrayList<Rectangle2D.Double> barrierCollisionBoxes; // The
 																	// arraylist
@@ -67,7 +68,6 @@ public class Level {
 																	// boxes.
 	private ArrayList<Gold> goldObjects; // The arraylist of Gold objects.
 	private HashMap<Integer, BufferedImage> images; // Hashmap of tile images.
-
 	/**
 	 * Constructs a Level object with given tileSize that searches for a
 	 * specific fileName
@@ -212,6 +212,7 @@ public class Level {
 			this.mapHeight = Integer.parseInt(imageReader.readLine());
 
 			this.map = new int[this.mapHeight][this.mapWidth];
+			this.tileUpdated = new boolean[this.mapHeight][this.mapWidth];
 
 			for (int r = 0; r < this.map.length; r++) {
 				// Get line of numbers and spaces.
@@ -225,6 +226,7 @@ public class Level {
 					// Convert the String integers into integer values to be
 					// stored in level.
 					this.map[c][r] = Integer.parseInt(currentLineValues[c]);
+					this.tileUpdated[c][r] = true;
 				}
 			}
 			img = new BufferedImage(this.mapWidth*this.tileSize,this.mapHeight*this.tileSize,BufferedImage.TYPE_INT_RGB);
@@ -358,8 +360,11 @@ public class Level {
 	 */
 	public void drawTileImage(int tileValue, int row, int col, Graphics2D g2) {
 		// FIXME: reduce the number of calls to the code below. When does drawImage really need to be called?
-		BufferedImage image = this.images.get(tileValue);
-		g2.drawImage(image, row * this.tileSize, col * this.tileSize, null);
+		if (this.tileUpdated[row][col]){
+			BufferedImage image = this.images.get(tileValue);
+			g2.drawImage(image, row * this.tileSize, col * this.tileSize, null);
+			this.tileUpdated[row][col] = false;
+		}
 	}
 
 	/**
@@ -384,6 +389,7 @@ public class Level {
 	 */
 	public void updateTile(int x, int y, int tileID) {
 		this.map[x][y] = tileID;
+		this.tileUpdated[x][y] = true;
 	}
 
 	/**
